@@ -9,11 +9,11 @@
    ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝
 </pre>
 
-**T.A.R.S. - Tactical Assistance & Reconnaissance Sentry | Interface v3.0**
+**T.A.R.S. - v3.0**
 
 *Transmission Log: 20250605*
 
-> "Eu tenho uma configuração de discrição, Cooper. E também uma de sinceridade."
+> Baseado no filme Interestelar
 
 </div>
 
