@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TARS</title>
+    <style>
+      /* Importa a fonte do Google Fonts */
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap");
+
+      /* Variáveis de Cor para o tema Glassmorphism */
+      :root {
+        --background-color: #0d1117;
+        --glass-bg: rgba(22, 27, 34, 0.6);
+        --border-color: rgba(255, 255, 255, 0.1);
+        --accent-gradient-tars: linear-gradient(45deg, #ff8c00, #f0ad4e);
+        --accent-gradient-user: linear-gradient(45deg, #00c6ff, #0072ff);
+        --text-color-primary: #e6edf3;
+        --text-color-secondary: #7d8590;
+      }
+
+      /* Estilo Base */
+      * {
+        box-sizing: border-box;
+        scrollbar-width: none; /* Firefox */
+      }
+      *::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera*/
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color-primary);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        overflow: hidden; /* Impede scroll do body */
+      }
+      /* Cole este CSS dentro da tag <style> */
+      .settings-panel {
+        padding: 10px 20px;
+        background: rgba(22, 27, 34, 0.7);
+        display: flex;
+        justify-content: space-around;
+        gap: 20px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .setting {
+        font-size: 0.9rem;
+        color: var(--text-color-secondary);
+      }
+
+      .setting label {
+        margin-right: 10px;
+      }
+
+      .setting input[type="range"] {
+        vertical-align: middle;
+        cursor: pointer;
+      }
+
+      /* Fundo de Partículas */
+      #particles-js {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: -1;
+      }
+
+      /* Container Principal do Chat */
+      .chat-container {
+        width: 95%;
+        max-width: 800px;
+        height: 90vh;
+        background: var(--glass-bg);
+        border: 1px solid var(--border-color);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        border-radius: 16px;
+        overflow: hidden;
+      }
+
+      /* Área do Log de Mensagens */
+      #chat-log {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 20px 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      /* Animação de entrada das mensagens */
+      @keyframes slideUpFadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .log-entry {
+        display: flex;
+        flex-direction: column;
+        max-width: 80%;
+        animation: slideUpFadeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+
+      .log-entry strong {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      .log-entry .content {
+        padding: 12px 18px;
+        border-radius: 18px;
+        line-height: 1.5;
+      }
+
+      .user {
+        align-self: flex-end;
+      }
+      .user strong {
+        color: var(--text-color-secondary);
+        text-align: right;
+      }
+      .user .content {
+        background: var(--accent-gradient-user);
+        color: white;
+        border-bottom-right-radius: 4px;
+      }
+
+      .tars {
+        align-self: flex-start;
+      }
+      .tars strong {
+        background: var(--accent-gradient-tars);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .tars .content {
+        background: rgba(45, 51, 59, 0.8);
+        border-bottom-left-radius: 4px;
+      }
+
+      /* Indicador de "Digitando" */
+      .typing-indicator span {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        margin: 0 2px;
+        animation: blink 1.4s infinite both;
+      }
+      .typing-indicator span:nth-child(1) {
+        background: #ff8c00;
+      }
+      .typing-indicator span:nth-child(2) {
+        background: #f0ad4e;
+        animation-delay: 0.2s;
+      }
+      .typing-indicator span:nth-child(3) {
+        background: #ffc674;
+        animation-delay: 0.4s;
+      }
+
+      @keyframes blink {
+        0% {
+          opacity: 0.2;
+          transform: scale(0.8);
+        }
+        20% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        100% {
+          opacity: 0.2;
+          transform: scale(0.8);
+        }
+      }
+
+      /* Área de Input */
+      .input-area {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        border-top: 1px solid var(--border-color);
+      }
+
+      #userInput {
+        flex-grow: 1;
+        padding: 14px 18px;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border-color);
+        color: var(--text-color-primary);
+        font-family: inherit;
+        font-size: 1rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+      }
+      #userInput:focus {
+        outline: none;
+        border-color: rgba(240, 173, 78, 0.5);
+        box-shadow: 0 0 10px rgba(240, 173, 78, 0.3);
+      }
+
+      button#sendButton {
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        width: 50px;
+        height: 50px;
+        margin-left: 12px;
+        background: var(--accent-gradient-user);
+        border: none;
+        cursor: pointer;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+      }
+      button#sendButton svg {
+        width: 24px;
+        height: 24px;
+        transition: transform 0.3s ease;
+      }
+      button#sendButton:hover {
+        box-shadow: 0 0 15px rgba(0, 198, 255, 0.5);
+      }
+      button#sendButton:disabled {
+        background: #333;
+        cursor: not-allowed;
+        transform: scale(0.9);
+      }
+      button#sendButton:disabled svg {
+        fill: #777;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="particles-js"></div>
+
+    <div class="chat-container">
+      <div class="settings-panel">
+        <div class="setting">
+          <label for="humor-slider"
+            >Humor: <span id="humor-value">90%</span></label
+          >
+          <input type="range" id="humor-slider" min="0" max="100" value="90" />
+        </div>
+        <div class="setting">
+          <label for="honesty-slider"
+            >Honestidade: <span id="honesty-value">100%</span></label
+          >
+          <input
+            type="range"
+            id="honesty-slider"
+            min="70"
+            max="100"
+            value="100"
+          />
+        </div>
+      </div>
+
+      <div id="chat-log">
+        <div class="log-entry tars">
+          <strong>TARS:</strong>
+          <div class="content">Olá! Envie uma mensagem para começar</div>
+        </div>
+      </div>
+      <div class="input-area">
+        <input
+          type="text"
+          id="userInput"
+          placeholder="Comunicar..."
+          autocomplete="off"
+        />
+        <button id="sendButton" title="Enviar Mensagem">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="white"
+          >
+            <path
+              d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.9.3/tsparticles.bundle.min.js"></script>
+
+    <script>
+      const humorSlider = document.getElementById("humor-slider");
+      const honestySlider = document.getElementById("honesty-slider");
+      const humorValue = document.getElementById("humor-value");
+      const honestyValue = document.getElementById("honesty-value");
+
+      humorSlider.oninput = () => {
+        humorValue.textContent = `${humorSlider.value}%`;
+      };
+      honestySlider.oninput = () => {
+        honestyValue.textContent = `${honestySlider.value}%`;
+      };
+
+      // Configuração do Fundo de Partículas
+      tsParticles.load("particles-js", {
+        fpsLimit: 60,
+        interactivity: {
+          events: {
+            onHover: { enable: true, mode: "repulse" },
+            resize: true,
+          },
+          modes: {
+            repulse: { distance: 100, duration: 0.4 },
+          },
+        },
+        particles: {
+          color: { value: "#4a5568" },
+          links: {
+            color: "#4a5568",
+            distance: 150,
+            enable: true,
+            opacity: 0.2,
+            width: 1,
+          },
+          move: {
+            direction: "none",
+            enable: true,
+            outModes: { default: "bounce" },
+            random: false,
+            speed: 1,
+            straight: false,
+          },
+          number: { density: { enable: true, area: 800 }, value: 80 },
+          opacity: { value: 0.2 },
+          shape: { type: "circle" },
+          size: { value: { min: 1, max: 5 } },
+        },
+        detectRetina: true,
+      });
+
+      // Lógica do Chat (sem grandes alterações, apenas se adapta ao novo HTML)
+      const chatLog = document.getElementById("chat-log");
+      const userInput = document.getElementById("userInput");
+      const sendButton = document.getElementById("sendButton");
+
+      function appendLog(sender, text, className) {
+        const logEntry = document.createElement("div");
+        logEntry.className = `log-entry ${className}`;
+
+        const senderStrong = document.createElement("strong");
+        senderStrong.innerText = `${sender}:`;
+
+        const contentDiv = document.createElement("div");
+        contentDiv.className = "content";
+        contentDiv.innerHTML = text;
+
+        logEntry.appendChild(senderStrong);
+        logEntry.appendChild(contentDiv);
+
+        chatLog.appendChild(logEntry);
+        chatLog.scrollTop = chatLog.scrollHeight;
+        return logEntry;
+      }
+
+      async function sendMessage() {
+        const message = userInput.value.trim();
+        if (!message) return;
+
+        userInput.disabled = true;
+        sendButton.disabled = true;
+
+        const humorLevel = humorSlider.value / 100; // Converte para um valor entre 0 e 1
+        const honestyLevel = honestySlider.value / 100; // Converte para um valor entre 0.7 e 1
+
+        appendLog("Você", message, "user");
+        userInput.value = "";
+
+        const typingIndicatorHTML =
+          '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+        const tarsLogEntry = appendLog("TARS", typingIndicatorHTML, "tars");
+
+        try {
+          const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              message: message,
+              humor: humorLevel,
+              honesty: honestyLevel,
+            }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Erro HTTP: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          // Atualiza o texto da resposta (isso sempre vai acontecer)
+          const tarsContentDiv = tarsLogEntry.querySelector(".content");
+          tarsContentDiv.innerText = data.text;
+
+          // --- MUDANÇA PRINCIPAL AQUI ---
+          // Toca o áudio APENAS se ele não for nulo.
+          if (data.audio) {
+            const audio = new Audio(data.audio);
+            audio.play();
+          }
+        } catch (error) {
+          console.error("Erro ao enviar mensagem:", error);
+          const tarsContentDiv = tarsLogEntry.querySelector(".content");
+          tarsContentDiv.innerText = `Falha na conexão com o núcleo. (${error.message})`;
+        } finally {
+          userInput.disabled = false;
+          sendButton.disabled = false;
+          userInput.focus();
+        }
+      }
+
+      sendButton.addEventListener("click", sendMessage);
+      userInput.addEventListener("keypress", (event) => {
+        if (event.key === "Enter") {
+          sendMessage();
+        }
+      });
+    </script>
+  </body>
+</html>
